@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { demoMembers } from '../../../data';
 import '../../../index.css';
 
 const UpdateMember = () => {
@@ -24,23 +25,23 @@ const UpdateMember = () => {
         fetchMemberData();
     }, [id]);
 
-    const fetchMemberData = async () => {
+    const fetchMemberData = () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/members/${id}`);
-            const data = await response.json();
+            // Use demo data instead of API
+            const member = demoMembers.find(m => m._id === id);
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Error fetching member');
+            if (!member) {
+                throw new Error('Member not found');
             }
 
             setFormData({
-                name: data.name,
-                email: data.email,
-                phone: data.phone,
+                name: member.name,
+                email: member.email,
+                phone: member.phone,
                 password: '',
                 confirmPassword: '',
-                status: data.status,
-                isAdmin: data.isAdmin,
+                status: member.status,
+                isAdmin: member.isAdmin,
             });
         } catch (err) {
             setError(err.message || 'Error fetching member data');
@@ -88,6 +89,7 @@ const UpdateMember = () => {
         setLoading(true);
 
         try {
+            // Use demo data update instead of API
             const updateData = {
                 name: formData.name,
                 email: formData.email,
@@ -96,24 +98,7 @@ const UpdateMember = () => {
                 isAdmin: formData.isAdmin,
             };
 
-            if (changePassword && formData.password) {
-                updateData.password = formData.password;
-            }
-
-            const response = await fetch(`http://localhost:5000/api/members/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updateData),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Error updating member');
-            }
-
+            // In a real app, this would be an API call
             setSuccess('Member updated successfully!');
             setChangePassword(false);
             setFormData((prev) => ({
@@ -131,20 +116,20 @@ const UpdateMember = () => {
     };
 
     if (fetchLoading) {
-        return <div className="container"><p>Loading member data...</p></div>;
+        return <div className="min-h-screen bg-gray-50 py-12 px-4 flex items-center justify-center"><p className="text-black">Loading member data...</p></div>;
     }
 
     return (
-        <div className="container">
-            <div className="form-wrapper">
-                <h1>Update Member</h1>
+        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+                <h1 className="text-3xl font-bold text-black mb-6 text-center">Update Member</h1>
 
-                {error && <div className="alert alert-error">{error}</div>}
-                {success && <div className="alert alert-success">{success}</div>}
+                {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+                {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
 
-                <form onSubmit={handleSubmit} className="form">
-                    <div className="form-group">
-                        <label htmlFor="name">Name *</label>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <label htmlFor="name" className="block text-sm font-medium text-black">Name *</label>
                         <input
                             type="text"
                             id="name"
@@ -152,12 +137,13 @@ const UpdateMember = () => {
                             value={formData.name}
                             onChange={handleInputChange}
                             placeholder="Enter member name"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                             required
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="email">Email *</label>
+                    <div className="space-y-2">
+                        <label htmlFor="email" className="block text-sm font-medium text-black">Email *</label>
                         <input
                             type="email"
                             id="email"
@@ -165,12 +151,13 @@ const UpdateMember = () => {
                             value={formData.email}
                             onChange={handleInputChange}
                             placeholder="Enter email address"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                             required
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="phone">Phone *</label>
+                    <div className="space-y-2">
+                        <label htmlFor="phone" className="block text-sm font-medium text-black">Phone *</label>
                         <input
                             type="tel"
                             id="phone"
@@ -178,26 +165,26 @@ const UpdateMember = () => {
                             value={formData.phone}
                             onChange={handleInputChange}
                             placeholder="Enter phone number"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                             required
                         />
                     </div>
 
-                    <div className="form-group checkbox">
-                        <label htmlFor="changePassword">
-                            <input
-                                type="checkbox"
-                                id="changePassword"
-                                checked={changePassword}
-                                onChange={(e) => setChangePassword(e.target.checked)}
-                            />
-                            Change Password
-                        </label>
+                    <div className="flex items-center space-x-2 py-2">
+                        <input
+                            type="checkbox"
+                            id="changePassword"
+                            checked={changePassword}
+                            onChange={(e) => setChangePassword(e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-300 focus:ring-2 focus:ring-black"
+                        />
+                        <label htmlFor="changePassword" className="text-sm font-medium text-black">Change Password</label>
                     </div>
 
                     {changePassword && (
                         <>
-                            <div className="form-group">
-                                <label htmlFor="password">New Password *</label>
+                            <div className="space-y-2">
+                                <label htmlFor="password" className="block text-sm font-medium text-black">New Password *</label>
                                 <input
                                     type="password"
                                     id="password"
@@ -205,12 +192,13 @@ const UpdateMember = () => {
                                     value={formData.password}
                                     onChange={handleInputChange}
                                     placeholder="Enter new password"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                                     required={changePassword}
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label htmlFor="confirmPassword">Confirm New Password *</label>
+                            <div className="space-y-2">
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-black">Confirm New Password *</label>
                                 <input
                                     type="password"
                                     id="confirmPassword"
@@ -218,39 +206,40 @@ const UpdateMember = () => {
                                     value={formData.confirmPassword}
                                     onChange={handleInputChange}
                                     placeholder="Confirm new password"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                                     required={changePassword}
                                 />
                             </div>
                         </>
                     )}
 
-                    <div className="form-group">
-                        <label htmlFor="status">Status</label>
+                    <div className="space-y-2">
+                        <label htmlFor="status" className="block text-sm font-medium text-black">Status</label>
                         <select
                             id="status"
                             name="status"
                             value={formData.status}
                             onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                         >
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
 
-                    <div className="form-group checkbox">
-                        <label htmlFor="isAdmin">
-                            <input
-                                type="checkbox"
-                                id="isAdmin"
-                                name="isAdmin"
-                                checked={formData.isAdmin}
-                                onChange={handleInputChange}
-                            />
-                            Make Admin
-                        </label>
+                    <div className="flex items-center space-x-2 py-2">
+                        <input
+                            type="checkbox"
+                            id="isAdmin"
+                            name="isAdmin"
+                            checked={formData.isAdmin}
+                            onChange={handleInputChange}
+                            className="w-4 h-4 rounded border-gray-300 focus:ring-2 focus:ring-black"
+                        />
+                        <label htmlFor="isAdmin" className="text-sm font-medium text-black">Make Admin</label>
                     </div>
 
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                    <button type="submit" className="w-full bg-black text-white py-2 px-4 rounded-md font-semibold hover:bg-gray-800 transition disabled:opacity-50" disabled={loading}>
                         {loading ? 'Updating Member...' : 'Update Member'}
                     </button>
                 </form>

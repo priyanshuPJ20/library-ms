@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const memberRoutes = require('./routes/memberRoutes');
+const bookMovieRoutes = require('./routes/bookMovieRoutes');
+const issueTransactionRoutes = require('./routes/issueTransactionRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -45,6 +47,8 @@ const verifyPassword = async (password, hashedPassword) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/members', memberRoutes);
+app.use('/api/books-movies', bookMovieRoutes);
+app.use('/api/transactions', issueTransactionRoutes);
 
 // Basic health check route
 app.get('/api/health', (req, res) => {
